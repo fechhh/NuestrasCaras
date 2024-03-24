@@ -14,6 +14,9 @@ from pixels import intensidad_pixels # Importo la funcion intensidad_pixels del 
 current_directory = os.getcwd()
 folder_name = "fotos"
 
+# current_directory
+# os.chdir(os.path.join(current_directory, "NuestrasCaras"))
+
 folder_path = os.path.join(os.getcwd(), folder_name)
 
 intensidad_pixels(folder_path)
