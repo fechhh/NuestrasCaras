@@ -1,6 +1,6 @@
 ## Nuestras Caras
 
-# Objectivo
+# Objetivo
 Diseñar un script que reciba imagenes y nombres de personas, las agrupe acorde a cada persona y luego pueda identificar nombres al brindarle nuevas imágenes.
 
 # Funcionamiento
