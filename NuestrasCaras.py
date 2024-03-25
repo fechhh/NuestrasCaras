@@ -7,6 +7,8 @@ from sklearn.preprocessing import StandardScaler
 import os
 from PIL import Image
 import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
 from pixels import intensidad_pixels # Importo la funcion intensidad_pixels del archivo pixels.py creado anteriormente
 
 
@@ -49,14 +51,27 @@ greyscale_values = data_fotos.iloc[:, 1:].values
 scaler = StandardScaler()
 greyscale_values_standardized = scaler.fit_transform(greyscale_values)
 
-# Create a PCA object
-pca = PCA(n_components=2)
+# Create a PCA object (tomo 20 CP)
+#pca = PCA() # asi se pueden observar todas las CP
+pca = PCA(n_components=20)
 
 # Fit the PCA object
 principal_components = pca.fit_transform(greyscale_values_standardized)
 
+# Get the explained variance ratios
+explained_variance_ratios = pca.explained_variance_ratio_
+
+# Create a bar plot
+plt.bar(range(1, len(explained_variance_ratios) + 1), explained_variance_ratios, alpha=0.5, align='center')
+plt.xticks(range(1, len(explained_variance_ratios) + 1))
+plt.xlabel('Componente Principal')
+plt.ylabel('Proporción de Varianza Explicada')
+plt.title('Proporción de Varianza Explicada por Componente Principal')
+plt.show()
+
 # Create a DataFrame to store the principal components
 principal_components_df = pd.DataFrame(principal_components, columns=["PC1", "PC2"])
+principal_components_df
 
 # Add the people names to the DataFrame
 principal_components_df["People"] = people_names
@@ -65,3 +80,19 @@ principal_components_df["People"] = people_names
 principal_components_df.to_csv('componentes_principales.csv', index=False)
 
 #********************************************************************************************************************
+#                   CARA PROMEDIO CREADA CON EL PROMEDIO DE LOS VALORES GRISES DE LAS FOTOS
+#********************************************************************************************************************
+# Calculate the average greyscale values
+average_greyscale_values = np.mean(greyscale_values, axis=0)
+
+# Reshape the average greyscale values to match the image dimensions
+average_greyscale_values = average_greyscale_values.reshape((30, 30))
+
+# Convert the average greyscale values to uint8 data type
+average_greyscale_values = average_greyscale_values.astype(np.uint8)
+
+# Create an image from the average greyscale values
+average_image = Image.fromarray(average_greyscale_values, mode='L')
+
+# Display the average face
+average_image.show()
