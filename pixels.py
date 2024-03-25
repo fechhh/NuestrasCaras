@@ -6,7 +6,7 @@ from PIL import Image
 import pandas as pd
 
 def intensidad_pixels(folder_path):
-    # Extrae la intensidad de los pixeles de las fotos y los guarda en un archivo csv
+    # Extrae la intensidad de los pixeles de las fotos y devuelve un data frame con los valores de intensidad de los pixeles
     # 0 representa un pixel completamente negro
     # 255 representa un pixel completamente blanco
 
@@ -43,5 +43,5 @@ def intensidad_pixels(folder_path):
     # Create a DataFrame to store all the greyscale values
     df = pd.DataFrame(all_greyscale_values)
 
-    # Save the DataFrame to a CSV file
-    df.to_csv('greyscale_values.csv', index=False) # Este archivo tiene todos los valores de los pixeles de las fotos
+    return df
+
