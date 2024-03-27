@@ -12,6 +12,8 @@ import seaborn as sns
 from sklearn.cluster import KMeans
 from sklearn.cluster import DBSCAN
 from sklearn.cluster import AgglomerativeClustering
+from sklearn.preprocessing import OneHotEncoder
+from scipy.sparse import csr_matrix
 from pixels import intensidad_pixels # Importo la funcion intensidad_pixels del archivo pixels.py creado anteriormente
 
 
@@ -70,7 +72,7 @@ scaler = StandardScaler()
 greyscale_values_standardized = scaler.fit_transform(greyscale_values)
 
 # Create a PCA object (tomo 20 CP)
-cant_componentes = 100
+cant_componentes = 200
 
 #pca = PCA() # asi se pueden observar todas las CP
 pca = PCA(n_components=cant_componentes)
@@ -132,26 +134,36 @@ principal_components_df.to_csv('componentes_principales.csv', index=False)
 # 18 clusters ya que somos 18 personas
 num_clusters = 18
 
-# Apply agglomerative clustering
+#************* TECNICA 1: AGGLOMERATIVE CLUSTERING *******************
+# Perform agglomerative clustering
 agg_cluster = AgglomerativeClustering(n_clusters=num_clusters, linkage='ward')  # You can adjust the number of clusters and linkage method
-labels = agg_cluster.fit_predict(principal_components)
+cluster = agg_cluster.fit_predict(principal_components)
 
 # Add the cluster labels to the DataFrame
-principal_components_df["Cluster"] = labels
+principal_components_df["Cluster"] = cluster
 
 # Create a DataFrame to store the photo number, person name, and cluster number
-df_agg_clustering = pd.DataFrame({'Numero de Foto': range(1, len(file_names) + 1), 'Nombre de Persona': people_names, 'Numero de Cluster': labels})
+df_agg_clustering = pd.DataFrame({'Numero de Foto': range(1, len(file_names) + 1), 'Nombre de Persona': people_names, 'Numero de Cluster': cluster})
 
 # Print the DataFrame
 print(df_agg_clustering)
 
-
+#************* TECNICA 2: K-MEANS CLUSTERING *******************
 # Perform K-means clustering
 kmeans = KMeans(n_clusters=num_clusters)
 clusters = kmeans.fit_predict(principal_components)
 
 # Add the cluster labels to the DataFrame
 principal_components_df["Cluster"] = clusters
+
+# Create a DataFrame to store the photo number, person name, and cluster number
+df_kmeans = pd.DataFrame({'Numero de Foto': range(1, len(file_names) + 1), 'Nombre de Persona': people_names, 'Numero de Cluster': cluster})
+print(df_kmeans)
+
+#*************************************************************
+# Las dos tecnicas funcionan, hay que probar cual nos gusta mas (CREO que agglomerative funciona mejor)
+#*************************************************************
+
 
 # Visualize the clusters
 #plt.figure(figsize=(10, 10))
@@ -161,11 +173,6 @@ principal_components_df["Cluster"] = clusters
 #plt.title("Agrupación de las Fotos")
 #plt.show()
 
-# Create a DataFrame to store the photo number, person name, and cluster number
-df_kmeans = pd.DataFrame({'Numero de Foto': range(1, len(file_names) + 1), 'Nombre de Persona': people_names, 'Numero de Cluster': clusters})
-
-# Print the DataFrame
-print(df_kmeans)
 
 
 
@@ -174,31 +181,29 @@ print(df_kmeans)
 
 # Count the number of photos for each person in each cluster
 cluster_counts = principal_components_df.groupby(['Cluster', 'Persona']).size().reset_index(name='Count')
+cluster_counts
 
-# Find the person with the maximum count in each cluster
-max_counts = cluster_counts.groupby('Cluster')['Count'].idxmax()
+# Cantidad de fotos de la persona que mas fotos tiene en cada cluster
+# Si este valor es muy bajo, el cluster no tiene sentido
+amount_most_pictures = cluster_counts.groupby('Cluster')['Count'].apply(lambda x: round(x.max(), 0))
+amount_most_pictures
 
-# Get the corresponding person names for each cluster
-cluster_names = cluster_counts.loc[max_counts, ['Cluster', 'Persona']]
-cluster_names
+# Calculate the percentage of photos that the person with the most pictures has in each cluster
+percentage_most_pictures = cluster_counts.groupby('Cluster')['Count'].apply(lambda x: round(x.max() / x.sum() * 100, 1))
 
-# Ahora  quiero encontrar el % de fotos de la persona que mas hay en cada cluster
-# Calculate the total count of photos in each cluster
-cluster_totals = cluster_counts.groupby('Cluster')['Count'].sum()
+# Get the person with the most pictures in each cluster
+person_with_most_pictures = cluster_counts.loc[cluster_counts.groupby('Cluster')['Count'].idxmax(), 'Persona']
 
-
-
-
-
-
-
-}
-
+# Combine the percentage and person information into a DataFrame
+df_clusters_por_persona = pd.DataFrame({'Cluster': percentage_most_pictures.index, 'Percentage': percentage_most_pictures.values,'Amount': amount_most_pictures, 'Person': person_with_most_pictures.values})
+df_clusters_por_persona #Este df muestra el porcentaje de fotos de la persona que mas fotos tiene en cada cluster
 
 #********************************************************************************************************************
-#                   DADA UNA FOTO IDENTIFICAR PERSONA 
-#********************************************************************************************************************
-folder_name = "fotos-a-identificar"
+
+
+
+
+
 
 # current_directory
 # os.chdir(os.path.join(current_directory, "NuestrasCaras"))
