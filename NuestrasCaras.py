@@ -10,6 +10,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.cluster import KMeans
+from sklearn.cluster import DBSCAN
+from sklearn.cluster import AgglomerativeClustering
 from pixels import intensidad_pixels # Importo la funcion intensidad_pixels del archivo pixels.py creado anteriormente
 
 
@@ -68,7 +70,7 @@ scaler = StandardScaler()
 greyscale_values_standardized = scaler.fit_transform(greyscale_values)
 
 # Create a PCA object (tomo 20 CP)
-cant_componentes = 50
+cant_componentes = 100
 
 #pca = PCA() # asi se pueden observar todas las CP
 pca = PCA(n_components=cant_componentes)
@@ -76,19 +78,22 @@ pca = PCA(n_components=cant_componentes)
 # Fit the PCA object
 principal_components = pca.fit_transform(greyscale_values_standardized)
 
+# Eigenfaces
+eigenfaces = pca.components_
+
 # Get the explained variance ratios
 explained_variance_ratios = pca.explained_variance_ratio_
 
 # Create a bar plot
-plt.bar(range(1, len(explained_variance_ratios) + 1), explained_variance_ratios, alpha=0.5, align='center')
-plt.xticks(range(1, len(explained_variance_ratios) + 1))
-plt.xlabel('Componente Principal')
-plt.ylabel('Proporción de Varianza Explicada')
-plt.title('Proporción de Varianza Explicada por Componente Principal')
+#plt.bar(range(1, len(explained_variance_ratios) + 1), explained_variance_ratios, alpha=0.5, align='center')
+#plt.xticks(range(1, len(explained_variance_ratios) + 1))
+#plt.xlabel('Componente Principal')
+#plt.ylabel('Proporción de Varianza Explicada')
+#plt.title('Proporción de Varianza Explicada por Componente Principal')
 #plt.show()
 
 # Create a DataFrame to store the principal components
-principal_components_df = pd.DataFrame(principal_components)
+principal_components_df = pd.DataFrame(principal_components, columns = [f"PC{i}" for i in range(1, cant_componentes + 1)])
 # imprime los componentes principales
 #principal_components_df
 
@@ -99,7 +104,7 @@ principal_components_df["Persona"] = people_names
 principal_components_df.to_csv('componentes_principales.csv', index=False)
 
 #********************************************************************************************************************
-#                   GRAFICOS DE LOS COMPONENTES PRINCIPALES (tarda en ejecutar)
+#                   GRAFICOS DE LOS COMPONENTES PRINCIPALES
 #********************************************************************************************************************
 # Create a pairplot of the principal components (tarda bastante)
 #sns.pairplot(principal_components_df, hue="Persona")
@@ -122,10 +127,24 @@ principal_components_df.to_csv('componentes_principales.csv', index=False)
 #plt.show()
 
 #********************************************************************************************************************
-#                   AGRUPACION CLUSTER DE LAS PERSONAS
+#                   AGRUPACION CLUSTER DE LAS PERSONAS (agglomerative clustering y k-means)
 #********************************************************************************************************************
 # 18 clusters ya que somos 18 personas
 num_clusters = 18
+
+# Apply agglomerative clustering
+agg_cluster = AgglomerativeClustering(n_clusters=num_clusters, linkage='ward')  # You can adjust the number of clusters and linkage method
+labels = agg_cluster.fit_predict(principal_components)
+
+# Add the cluster labels to the DataFrame
+principal_components_df["Cluster"] = labels
+
+# Create a DataFrame to store the photo number, person name, and cluster number
+df_agg_clustering = pd.DataFrame({'Numero de Foto': range(1, len(file_names) + 1), 'Nombre de Persona': people_names, 'Numero de Cluster': labels})
+
+# Print the DataFrame
+print(df_agg_clustering)
+
 
 # Perform K-means clustering
 kmeans = KMeans(n_clusters=num_clusters)
@@ -143,12 +162,15 @@ principal_components_df["Cluster"] = clusters
 #plt.show()
 
 # Create a DataFrame to store the photo number, person name, and cluster number
-df = pd.DataFrame({'Numero de Foto': range(1, len(file_names) + 1),
-                   'Nombre de Persona': people_names,
-                   'Numero de Cluster': clusters})
+df_kmeans = pd.DataFrame({'Numero de Foto': range(1, len(file_names) + 1), 'Nombre de Persona': people_names, 'Numero de Cluster': clusters})
 
 # Print the DataFrame
-print(df)
+print(df_kmeans)
+
+
+
+# ******** Ahora quiero saber cuantas fotos hay de cada persona en cada cluster
+# y calcular el porcentaje de fotos de la persona que mas hay en ese cluster
 
 # Count the number of photos for each person in each cluster
 cluster_counts = principal_components_df.groupby(['Cluster', 'Persona']).size().reset_index(name='Count')
@@ -158,18 +180,20 @@ max_counts = cluster_counts.groupby('Cluster')['Count'].idxmax()
 
 # Get the corresponding person names for each cluster
 cluster_names = cluster_counts.loc[max_counts, ['Cluster', 'Persona']]
+cluster_names
 
-# Calculate the probability of each person in each cluster
-cluster_probabilities = cluster_counts.groupby('Cluster').apply(lambda x: x['Count'] / x['Count'].sum()).reset_index(name='Probability')
+# Ahora  quiero encontrar el % de fotos de la persona que mas hay en cada cluster
+# Calculate the total count of photos in each cluster
+cluster_totals = cluster_counts.groupby('Cluster')['Count'].sum()
 
-# Merge the cluster names and probabilities
-cluster_names = cluster_names.merge(cluster_probabilities, on='Cluster')
 
-# Sort the clusters by probability in descending order
-cluster_names = cluster_names.sort_values(by='Probability', ascending=False)
 
-# Print the cluster names
-print(cluster_names)
+
+
+
+
+}
+
 
 #********************************************************************************************************************
 #                   DADA UNA FOTO IDENTIFICAR PERSONA 
