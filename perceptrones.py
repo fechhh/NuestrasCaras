@@ -10,8 +10,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mlxtend.preprocessing import standardize
 
-from graficos import perceptron_plot 
-
 def func_eval(fname, x):
     match fname:
         case "purelin":
@@ -22,7 +20,9 @@ def func_eval(fname, x):
             y = 2.0 / ( 1.0 + math.exp(-2.0*x) ) - 1.0
     return y
 
-func_eval_vec = np.vectorize(func_eval)
+def softmax(x):
+    exp_x = np.exp(x - np.max(x, axis=0))
+    return exp_x / np.sum(exp_x, axis=0)
 
 def deriv_eval(fname, y):  #atencion que y es la entrada y=f( x )
     match fname:
@@ -48,6 +48,8 @@ def backpropagation_1_capa(entrada, salida, n_neuronas, epoch_limit, Error_umbra
     # Paso las listas a numpy
     X = np.array(entrada)
     Y = np.array(salida).reshape(len(X),1)
+    
+    func_eval_vec = np.vectorize(func_eval)
 
     filas_qty = len(X)
     input_size = X.shape[1]   # 2 entradas
@@ -58,8 +60,6 @@ def backpropagation_1_capa(entrada, salida, n_neuronas, epoch_limit, Error_umbra
     hidden_FUNC = 'logsig'  # uso la logistica
     output_FUNC = 'tansig'  # uso la tangente hiperbolica
 
-    # incializo los graficos
-    #grafico = perceptron_plot(X, np.array(salida), 0.0)
 
     # Incializo las matrices de pesos azarosamente
     # W1 son los pesos que van del input a la capa oculta
@@ -123,7 +123,7 @@ def backpropagation_1_capa(entrada, salida, n_neuronas, epoch_limit, Error_umbra
         # calculo el error promedio general de TODOS los X
         Error= np.mean( (Y.T - output_salidas)**2 )
     
-    return W1, X01, W2, X02, epoch, Error
+    return W1, X01, W2, X02
 
 
 
@@ -133,6 +133,8 @@ def backpropagation_2_capas(entrada, salida, n_neuronas_capa1, n_neuronas_capa2,
     # Paso las listas a numpy
     X = np.array(entrada)
     Y = np.array(salida).reshape(len(X),1)
+    
+    func_eval_vec = np.vectorize(func_eval)
 
     filas_qty = len(X)
     input_size = X.shape[1]   # 2 entradas
@@ -145,8 +147,6 @@ def backpropagation_2_capas(entrada, salida, n_neuronas_capa1, n_neuronas_capa2,
     hidden_FUNC2 = 'logsig'  # uso la logistica
     output_FUNC = 'tansig'  # uso la tangente hiperbolica
 
-    # incializo los graficos
-    #grafico = perceptron_plot(X, np.array(salida), 0.0)
 
     # Incializo las matrices de pesos azarosamente
     # W1 son los pesos que van del input a la capa oculta 1
@@ -218,4 +218,55 @@ def backpropagation_2_capas(entrada, salida, n_neuronas_capa1, n_neuronas_capa2,
         # calculo el error promedio general de TODOS los X
         Error= np.mean( (Y.T - output_salidas)**2 )
         
-    return W1, X01, W2, X02, W3, X03, epoch, Error
+    return W1, X01, W2, X02, W3, X03
+
+
+
+def predecir_clase_1_neurona(pesos, entrada):
+    # Desempaquetar los pesos
+    W1, X01, W2, X02 = pesos
+    
+    entrada = np.array(entrada)
+
+    # defino las funciones de activacion de cada capa
+    hidden_FUNC = 'logsig'  # uso la logistica
+
+    func_eval_vec = np.vectorize(func_eval)
+
+    # Avanzar la red, forward
+    hidden_estimulos = np.dot(W1, entrada.T) + X01
+    hidden_salidas = func_eval_vec(hidden_FUNC, hidden_estimulos)
+    output_estimulos = np.dot(W2, hidden_salidas) + X02
+    output_salidas = softmax(output_estimulos)
+
+    # Obtener la clase predicha
+    clase_predicha = np.argmax(output_salidas)
+
+    return output_salidas, clase_predicha
+
+
+
+def predecir_clase_2_neuronas(pesos, entrada):
+    # Desempaquetar los pesos
+    W1, X01, W2, X02, W3, X03 = pesos
+
+    entrada = np.array(entrada)
+
+    # Definir las funciones de activación de cada capa
+    hidden_FUNC1 = 'logsig'  # uso la logistica
+    hidden_FUNC2 = 'logsig'  # uso la logistica
+
+    func_eval_vec = np.vectorize(func_eval)
+
+    # Avanzar la red, forward
+    hidden_estimulos1 = np.dot(W1, entrada.T) + X01
+    hidden_salidas1 = func_eval_vec(hidden_FUNC1, hidden_estimulos1)
+    hidden_estimulos2 = np.dot(W2, hidden_salidas1) + X02
+    hidden_salidas2 = func_eval_vec(hidden_FUNC2, hidden_estimulos2)
+    output_estimulos = np.dot(W3, hidden_salidas2) + X03
+    output_salidas = softmax(output_estimulos)
+
+    # Obtener la clase predicha
+    clase_predicha = np.argmax(output_salidas)
+
+    return output_salidas, clase_predicha
