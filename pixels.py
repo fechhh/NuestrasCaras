@@ -24,12 +24,6 @@ def intensidad_pixels(folder_path):
         # Load the image using PIL
         image = Image.open(file_path)
         
-        # Convert the image to greyscale
-        image = image.convert('L')
-        
-        # Resize the image to 30x30 pixels
-        image = image.resize((30, 30))
-        
         # Convert the image to a numpy array
         image_array = np.array(image)
         
