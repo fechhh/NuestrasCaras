@@ -1,9 +1,4 @@
 # Descripcion: Este script se encarga de reconocer los nombres de las personas en las fotos indicadas en la carpeta "fotos"
-#********************************************************************************************************************
-# V.2:
-# - Limpieza del codigo
-# - Incorporación de TensorFlow para la creación de una red neuronal que permita identificar las personas en las fotos
-#********************************************************************************************************************
 
 # importo librerias necesarias
 import numpy as np
@@ -14,13 +9,16 @@ from PIL import Image
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+from sklearn.cluster import KMeans
+from sklearn.cluster import DBSCAN
+from sklearn.cluster import AgglomerativeClustering
 from sklearn.preprocessing import OneHotEncoder
+from scipy.sparse import csr_matrix
 from sklearn.metrics.pairwise import euclidean_distances
 from scipy.stats import mode
 from sklearn.decomposition import KernelPCA
-
-from pixels import intensidad_pixels # Importo la funcion intensidad_pixels del archivo pixels.py
-from photo_30x30 import cortar_imagenes # Importo la funcion cortar_imagenes del archivo photo_30x30.py
+import tensorflow as tf
+from pixels import intensidad_pixels # Importo la funcion intensidad_pixels del archivo pixels.py creado anteriormente
 
 
 #********************************************************************************************************************
@@ -29,18 +27,12 @@ from photo_30x30 import cortar_imagenes # Importo la funcion cortar_imagenes del
 # Define the folder path
 # Get the current working directory
 current_directory = os.getcwd()
-folder_name = "fotos_crudas"
+folder_name = "fotos"
 
 # current_directory
 # os.chdir(os.path.join(current_directory, "NuestrasCaras"))
 
 folder_path = os.path.join(os.getcwd(), folder_name)
-
-#********************************************************************************************************************
-#                    CORTE DE LAS FOTOS Y CAMBIO DE ESCALA DE GRISES
-#********************************************************************************************************************
-# Cortar las fotos y cambiar a escala de grises
-cortar_imagenes(folder_path, os.path.join(os.getcwd(), "fotos_output"))
 
 #********************************************************************************************************************
 #                    OBTENCION DE LOS VALORES DE LOS PIXELES DE LAS FOTOS MEDIANTE PIXELS.PY
@@ -272,8 +264,8 @@ predicted_labels = encoder.categories_[0][predicted_classes]
 # Obtenemos la probabilidad de exito
 predicted_probabilities = np.round(np.max(predictions, axis=1), 2)
 
-for i, prediccion, probabilidad in zip(range(len(predicted_labels)),predicted_labels, predicted_probabilities):
-    print(f"Predicción {i+1}: {prediccion}, Probabilidad: {probabilidad}")
+for prediccion, probabilidad in zip(predicted_labels, predicted_probabilities):
+    print(f"Predicción: {prediccion}, Probabilidad: {probabilidad}")
 
 
 #********************************************************************************************************************
