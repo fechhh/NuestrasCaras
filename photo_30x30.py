@@ -3,13 +3,18 @@ import cv2
 import face_recognition
 
 
+# Recorta las caras de cada imagen, las cambia a escala de grises y las guarda en una carpeta de salida
 
 def cortar_imagenes(input_dir, output_dir):
     # Cargamos el detector de rostros de la libreria face_recognition
     face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
 
+    # Create the output directory if it doesn't exist
+    os.makedirs(output_dir, exist_ok=True)
+
     # Para cada archivo del directorio de imput comenzamos el loop
     for filename in os.listdir(input_dir):
+        i += 1
         # Cargamos la imagen
         input_path = os.path.join(input_dir, filename)
         img = cv2.imread(input_path)
@@ -24,7 +29,7 @@ def cortar_imagenes(input_dir, output_dir):
             face = cv2.cvtColor(face, cv2.COLOR_BGR2GRAY)
 
             # Guardamos el proceso en la carpeta de salida
-            output_path = os.path.join(output_dir, f"{filename}.jpg")
+            output_path = os.path.join(output_dir, f"{filename}")
             cv2.imwrite(output_path, face)
 
 
@@ -53,7 +58,7 @@ def copy_rename_images(input_dir, output_dir):
                     output_folder = os.path.join(output_dir)
                     os.makedirs(output_folder, exist_ok=True)
                     # Generate the new filename based on the folder name
-                    new_filename = f"{folder_name}_{i}"
+                    new_filename = f"{folder_name}_{i}"+".jpg"
                     # Save the image with the new filename in the output folder
                     output_path = os.path.join(output_folder, new_filename)
                     cv2.imwrite(output_path, img)
@@ -62,5 +67,4 @@ def copy_rename_images(input_dir, output_dir):
 
 
 
-
-cortar_imagenes("fotos_crudas", "output")
+#copy_rename_images("fotos", "input")
