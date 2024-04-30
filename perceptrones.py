@@ -15,10 +15,13 @@ def func_eval(fname, x):
         case "purelin":
             y = x
         case "logsig":
-            y = 1.0 / ( 1.0 + math.exp(-x) )
+            y = 1.0 / (1.0 + np.exp(-x))
         case "tansig":
-            y = 2.0 / ( 1.0 + math.exp(-2.0*x) ) - 1.0
+            y = 2.0 / (1.0 + np.exp(-2.0 * x)) - 1.0
+        case "relu":
+            y = np.maximum(0, x)
     return y
+
 
 def softmax(x):
     exp_x = np.exp(x - np.max(x, axis=0))
@@ -42,6 +45,7 @@ def deriv_eval_vec(fname, y):  #atencion que y es la entrada y=f( x )
     elif fname == 'tansig':
         d = 1.0 - y*y
     return d
+
 
 
 def backpropagation_1_capa(entrada, salida, n_neuronas, epoch_limit, Error_umbral, learning_rate):
@@ -123,7 +127,7 @@ def backpropagation_1_capa(entrada, salida, n_neuronas, epoch_limit, Error_umbra
         # calculo el error promedio general de TODOS los X
         Error= np.mean( (Y.T - output_salidas)**2 )
     
-    return W1, X01, W2, X02
+    return W1, X01, W2, X02, epoch, Error
 
 
 
@@ -218,7 +222,7 @@ def backpropagation_2_capas(entrada, salida, n_neuronas_capa1, n_neuronas_capa2,
         # calculo el error promedio general de TODOS los X
         Error= np.mean( (Y.T - output_salidas)**2 )
         
-    return W1, X01, W2, X02, W3, X03
+    return W1, X01, W2, X02, W3, X03, Error, epoch
 
 
 
@@ -265,6 +269,90 @@ def predecir_clase_2_neuronas(pesos, entrada):
     hidden_salidas2 = func_eval_vec(hidden_FUNC2, hidden_estimulos2)
     output_estimulos = np.dot(W3, hidden_salidas2) + X03
     output_salidas = softmax(output_estimulos)
+
+    # Obtener la clase predicha
+    clase_predicha = np.argmax(output_salidas)
+
+    return output_salidas, clase_predicha
+
+
+
+def backpropagation_1_capa_multi(entrada, salida, n_neuronas_capa_oculta, epoch_limit, Error_umbral, learning_rate):
+    X = np.array(entrada)
+    Y = np.array(salida)
+
+    func_eval_vec = np.vectorize(func_eval)
+
+    filas_qty = len(X)
+    input_size = X.shape[1]
+    hidden_size = n_neuronas_capa_oculta
+    output_size = Y.shape[1]
+
+    hidden_FUNC = 'tansig'  # Use ReLU for the hidden layer
+    output_FUNC = 'tansig'
+
+    np.random.seed(1021)
+    W1 = np.random.uniform(-0.5, 0.5, [hidden_size, input_size])
+    X01 = np.random.uniform(-0.5, 0.5, [hidden_size, 1])
+    W2 = np.random.uniform(-0.5, 0.5, [output_size, hidden_size])
+    X02 = np.random.uniform(-0.5, 0.5, [output_size, 1])
+
+    hidden_estimulos = W1 @ X.T + X01
+    hidden_salidas = func_eval_vec(hidden_FUNC, hidden_estimulos)
+    output_estimulos = W2 @ hidden_salidas + X02
+    output_salidas = func_eval_vec(output_FUNC, output_estimulos)
+
+    Error = np.mean((Y.T - output_salidas) ** 2)
+
+    Error_last = 10
+    epoch = 0
+
+    while (math.fabs(Error_last - Error) > Error_umbral and (epoch < epoch_limit)):
+        epoch += 1
+        Error_last = Error
+
+        for fila in range(filas_qty):
+            hidden_estimulos = W1 @ X[fila:fila + 1, :].T + X01
+            hidden_salidas = func_eval_vec(hidden_FUNC, hidden_estimulos)
+            output_estimulos = W2 @ hidden_salidas + X02
+            output_salidas = func_eval_vec(output_FUNC, output_estimulos)
+
+            ErrorSalida = Y[fila:fila + 1, :].T - output_salidas
+            output_delta = ErrorSalida * deriv_eval_vec(output_FUNC, output_salidas)
+            hidden_delta = deriv_eval_vec(hidden_FUNC, hidden_salidas) * (W2.T @ output_delta)
+
+            W1 = W1 + learning_rate * (hidden_delta @ X[fila:fila + 1, :])
+            X01 = X01 + learning_rate * hidden_delta
+            W2 = W2 + learning_rate * (output_delta @ hidden_salidas.T)
+            X02 = X02 + learning_rate * output_delta
+
+        hidden_estimulos = W1 @ X.T + X01
+        hidden_salidas = func_eval_vec(hidden_FUNC, hidden_estimulos)
+        output_estimulos = W2 @ hidden_salidas + X02
+        output_salidas = func_eval_vec(output_FUNC, output_estimulos)
+
+        Error = np.mean((Y.T - output_salidas) ** 2)
+
+    return W1, X01, W2, X02, epoch, Error
+
+
+def predecir_clase_1_capa_multi(pesos, entrada):
+    # Desempaquetar los pesos
+    W1, X01, W2, X02 = pesos
+    
+    entrada = np.array(entrada)
+
+    # Definir las funciones de activación de cada capa
+    hidden_FUNC = 'tansig'  # Use ReLU for the hidden layer
+    output_FUNC = 'tansig'
+
+    func_eval_vec = np.vectorize(func_eval)
+
+    # Avanzar la red, forward
+    hidden_estimulos = np.dot(W1, entrada.T) + X01
+    hidden_salidas = func_eval_vec(hidden_FUNC, hidden_estimulos)
+    output_estimulos = np.dot(W2, hidden_salidas) + X02
+    output_salidas = func_eval_vec(output_FUNC, output_estimulos)
 
     # Obtener la clase predicha
     clase_predicha = np.argmax(output_salidas)
