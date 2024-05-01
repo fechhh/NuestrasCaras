@@ -358,3 +358,103 @@ def predecir_clase_1_capa_multi(pesos, entrada):
     clase_predicha = np.argmax(output_salidas)
 
     return output_salidas, clase_predicha
+
+
+
+def backpropagation_2_capas_multi(entrada, salida, n_neuronas_capa1, n_neuronas_capa2, epoch_limit, Error_umbral, learning_rate):
+    X = np.array(entrada)
+    Y = np.array(salida)
+
+    func_eval_vec = np.vectorize(func_eval)
+
+    filas_qty = len(X)
+    input_size = X.shape[1]
+    hidden_size1 = n_neuronas_capa1
+    hidden_size2 = n_neuronas_capa2
+    output_size = Y.shape[1]
+
+    hidden_FUNC1 = 'tansig'
+    hidden_FUNC2 = 'tansig'
+    output_FUNC = 'tansig'
+
+    np.random.seed(1021)
+    W1 = np.random.uniform(-0.5, 0.5, [hidden_size1, input_size])
+    X01 = np.random.uniform(-0.5, 0.5, [hidden_size1, 1])
+    W2 = np.random.uniform(-0.5, 0.5, [hidden_size2, hidden_size1])
+    X02 = np.random.uniform(-0.5, 0.5, [hidden_size2, 1])
+    W3 = np.random.uniform(-0.5, 0.5, [output_size, hidden_size2])
+    X03 = np.random.uniform(-0.5, 0.5, [output_size, 1])
+
+    hidden_estimulos1 = W1 @ X.T + X01
+    hidden_salidas1 = func_eval_vec(hidden_FUNC1, hidden_estimulos1)
+    hidden_estimulos2 = W2 @ hidden_salidas1 + X02
+    hidden_salidas2 = func_eval_vec(hidden_FUNC2, hidden_estimulos2)
+    output_estimulos = W3 @ hidden_salidas2 + X03
+    output_salidas = func_eval_vec(output_FUNC, output_estimulos)
+
+    Error = np.mean((Y.T - output_salidas) ** 2)
+
+    Error_last = 10
+    epoch = 0
+
+    while (math.fabs(Error_last - Error) > Error_umbral and (epoch < epoch_limit)):
+        epoch += 1
+        Error_last = Error
+
+        for fila in range(filas_qty):
+            hidden_estimulos1 = W1 @ X[fila:fila + 1, :].T + X01
+            hidden_salidas1 = func_eval_vec(hidden_FUNC1, hidden_estimulos1)
+            hidden_estimulos2 = W2 @ hidden_salidas1 + X02
+            hidden_salidas2 = func_eval_vec(hidden_FUNC2, hidden_estimulos2)
+            output_estimulos = W3 @ hidden_salidas2 + X03
+            output_salidas = func_eval_vec(output_FUNC, output_estimulos)
+
+            ErrorSalida = Y[fila:fila + 1, :].T - output_salidas
+            output_delta = ErrorSalida * deriv_eval_vec(output_FUNC, output_salidas)
+            hidden_delta2 = deriv_eval_vec(hidden_FUNC2, hidden_salidas2) * (W3.T @ output_delta)
+            hidden_delta1 = deriv_eval_vec(hidden_FUNC1, hidden_salidas1) * (W2.T @ hidden_delta2)
+
+            W1 = W1 + learning_rate * (hidden_delta1 @ X[fila:fila + 1, :])
+            X01 = X01 + learning_rate * hidden_delta1
+            W2 = W2 + learning_rate * (hidden_delta2 @ hidden_salidas1.T)
+            X02 = X02 + learning_rate * hidden_delta2
+            W3 = W3 + learning_rate * (output_delta @ hidden_salidas2.T)
+            X03 = X03 + learning_rate * output_delta
+
+        hidden_estimulos1 = W1 @ X.T + X01
+        hidden_salidas1 = func_eval_vec(hidden_FUNC1, hidden_estimulos1)
+        hidden_estimulos2 = W2 @ hidden_salidas1 + X02
+        hidden_salidas2 = func_eval_vec(hidden_FUNC2, hidden_estimulos2)
+        output_estimulos = W3 @ hidden_salidas2 + X03
+        output_salidas = func_eval_vec(output_FUNC, output_estimulos)
+
+        Error = np.mean((Y.T - output_salidas) ** 2)
+
+    return W1, X01, W2, X02, W3, X03, epoch, Error
+
+
+def predecir_clase_2_capas_multi(pesos, entrada):
+    # Desempaquetar los pesos
+    W1, X01, W2, X02, W3, X03 = pesos
+
+    entrada = np.array(entrada)
+
+    # Definir las funciones de activación de cada capa
+    hidden_FUNC1 = 'tansig'
+    hidden_FUNC2 = 'tansig'
+    output_FUNC = 'tansig'
+
+    func_eval_vec = np.vectorize(func_eval)
+
+    # Avanzar la red, forward
+    hidden_estimulos1 = np.dot(W1, entrada.T) + X01
+    hidden_salidas1 = func_eval_vec(hidden_FUNC1, hidden_estimulos1)
+    hidden_estimulos2 = np.dot(W2, hidden_salidas1) + X02
+    hidden_salidas2 = func_eval_vec(hidden_FUNC2, hidden_estimulos2)
+    output_estimulos = np.dot(W3, hidden_salidas2) + X03
+    output_salidas = func_eval_vec(output_FUNC, output_estimulos)
+
+    # Obtener la clase predicha
+    clase_predicha = np.argmax(output_salidas)
+
+    return output_salidas, clase_predicha
