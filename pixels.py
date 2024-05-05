@@ -1,6 +1,4 @@
 import numpy as np
-from sklearn.decomposition import PCA
-from sklearn.preprocessing import StandardScaler
 import os
 from PIL import Image
 import pandas as pd
