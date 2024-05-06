@@ -60,7 +60,7 @@ def copy_rename_images(input_dir, output_dir):
                     output_folder = os.path.join(output_dir)
                     os.makedirs(output_folder, exist_ok=True)
                     # Generate the new filename based on the folder name
-                    new_filename = f"{folder_name}_{i}"+".jpg"
+                    new_filename = f"{folder_name}-{i}"+".jpg"
                     # Save the image with the new filename in the output folder
                     output_path = os.path.join(output_folder, new_filename)
                     cv2.imwrite(output_path, img)
