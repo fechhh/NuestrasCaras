@@ -150,8 +150,8 @@ def backpropagation_2_layers(
         # Calcular el error promedio general de TODOS los X
         Error = np.mean((Y.T - output_salidas) ** 2)
 
-        if epoch % 100 == 0:
-            # muestra iteracion si es multiplo de 100
+        if epoch % 200 == 0:
+            # muestra iteracion si es multiplo de 200
             print(f"Iteracion {epoch} - Error: {Error}")
 
     # Devuelve diccionario con los pesos y las funciones de activación por capa
