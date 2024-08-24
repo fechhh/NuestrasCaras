@@ -30,14 +30,14 @@ conda env create -f environment.yml
 
 ## Entrenamiento Modelo
 
-El entrenamiento del modelo para el reconocimiento de las caras es realizado mediante la notebook **01_entrenar_modelo\01_entrenar_modelo.ipynb**. 
+El entrenamiento del modelo para el reconocimiento de las caras es realizado mediante la notebook `01_entrenar_modelo\01_entrenar_modelo.ipynb`. 
 
 ## Evaluación nuevas imagenes
 
-Mediante la notebook **02_probar_nuevas_fotos\02_probar_nuevas_fotos.ipynb**.
+Mediante la notebook `02_probar_nuevas_fotos\02_probar_nuevas_fotos.ipynb`.
 
 Pasos para la evaluación de nuevas imágenes:
-1. Colocar las nuevas imágenes con formato "jpg" o "jpeg" en la carpeta "02_probar_nuevas_fotos\fotos_prueba".
+1. Colocar las nuevas imágenes con formato "jpg" o "jpeg" en la carpeta "**02_probar_nuevas_fotos\fotos_prueba**".
 
     Es importante que las mismas tengan el nombre de la persona en minuscula y un número en nombre del archivo.
 
@@ -47,12 +47,12 @@ Pasos para la evaluación de nuevas imágenes:
 
     Por ejemplo: "federicoG1.jpeg", "federicoG2.jpeg" o "federicoR1.jpeg", "federicoR2.jpeg".
 
-2. Ejecutar la notebook **02_probar_nuevas_fotos\02_probar_nuevas_fotos.ipynb**.
+2. Ejecutar la notebook `02_probar_nuevas_fotos\02_probar_nuevas_fotos.ipynb`.
 
     Al final de la misma se verificará el porcentaje de aciertos del modelo, indicando los nombres de las personas reconocidas y no reconocidas.
 
 ## EXTRA: Entrenamiento y evaluación con tensorflow
-Se se armo la notebook **03_pruebas_entrenamiento_tensorflow\03_entrenar_modelo_y_probar_con_tensorflow.ipynb** mediante la cual se plantean varias pruebas con tensorflow.
+Se se armo la notebook `03_pruebas_entrenamiento_tensorflow\03_entrenar_modelo_y_probar_con_tensorflow.ipynb` mediante la cual se plantean varias pruebas con tensorflow.
 
 ## Mejoras
 ...
