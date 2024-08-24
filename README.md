@@ -39,17 +39,17 @@ Mediante la notebook **02_probar_nuevas_fotos\02_probar_nuevas_fotos.ipynb**.
 Pasos para la evaluación de nuevas imágenes:
 1. Colocar las nuevas imágenes con formato "jpg" o "jpeg" en la carpeta "02_probar_nuevas_fotos\fotos_prueba".
 
-Es importante que las mismas tengan el nombre de la persona en minuscula y un número en nombre del archivo.
+    Es importante que las mismas tengan el nombre de la persona en minuscula y un número en nombre del archivo.
 
-Por ejemplo: "paola1.jpeg", "paola2.jpeg" o "lautaro1.jpeg", "lautaro2.jpeg".
+    Por ejemplo: "paola1.jpeg", "paola2.jpeg" o "lautaro1.jpeg", "lautaro2.jpeg".
 
-En caso de tener personas con el mismo nombre, colocar el nombre en minuscula, seguido de la primera letra del apellido en mayuscula.
+    En caso de tener personas con el mismo nombre, colocar el nombre en minuscula, seguido de la primera letra del apellido en mayuscula.
 
-Por ejemplo: "federicoG1.jpeg", "federicoG2.jpeg" o "federicoR1.jpeg", "federicoR2.jpeg".
+    Por ejemplo: "federicoG1.jpeg", "federicoG2.jpeg" o "federicoR1.jpeg", "federicoR2.jpeg".
 
 2. Ejecutar la notebook **02_probar_nuevas_fotos\02_probar_nuevas_fotos.ipynb**.
 
-Al final de la misma se verificará el porcentaje de aciertos del modelo, indicando los nombres de las personas reconocidas y no reconocidas.
+    Al final de la misma se verificará el porcentaje de aciertos del modelo, indicando los nombres de las personas reconocidas y no reconocidas.
 
 ## EXTRA: Entrenamiento y evaluación con tensorflow
 Se se armo la notebook **03_pruebas_entrenamiento_tensorflow\03_entrenar_modelo_y_probar_con_tensorflow.ipynb** mediante la cual se plantean varias pruebas con tensorflow.
