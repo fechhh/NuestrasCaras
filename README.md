@@ -23,6 +23,11 @@ Recordar tener activado el ambiente del proyecto. El mismo puede ser definido co
 
 Es opcional la instalación de 'tensorflow'.
 
+Si se tiene instalado conda, se puede crear el ambiente mediante el archivo [environment.yml](./environment.yml). Para esto ejecutar desde la terminal:
+```sh
+conda env create -f environment.yml
+```
+
 ## Entrenamiento Modelo
 
 El entrenamiento del modelo para el reconocimiento de las caras es realizado mediante la notebook **01_entrenar_modelo\01_entrenar_modelo.ipynb**. 
