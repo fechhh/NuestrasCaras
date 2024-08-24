@@ -55,4 +55,10 @@ Pasos para la evaluación de nuevas imágenes:
 Se se armo la notebook `03_pruebas_entrenamiento_tensorflow\03_entrenar_modelo_y_probar_con_tensorflow.ipynb` mediante la cual se plantean varias pruebas con tensorflow.
 
 ## Mejoras
-...
+
+## FALTA:
+correr algun modelito pasable (demora un rato largo por eso no lo hice aun pero el finde se puede hacer)
+
+despues pasarlo a main y borrar todas las ramas que queden dando vuelta
+
+gitignorar las imagenes en el repo
