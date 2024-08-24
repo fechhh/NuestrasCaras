@@ -43,7 +43,7 @@ def backpropagation_2_layers(
     Y,
     hidden_size1,
     hidden_size2,
-    epoch_limit=200,
+    epoch_limit=300,
     learning_rate=0.8,
     Error_umbral=0.00000000001,
 ) -> dict:
